@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function seed() {
-  const createdUsers = await prisma.user.createMany({
+  const createdUsersConfirmation = await prisma.user.createMany({
     data: [
       {
         username: "alicemarti",
@@ -19,31 +19,33 @@ async function seed() {
     ],
   });
 
+  const createdUsers = await prisma.user.findMany();
+
   const createdProfile = await prisma.profile.createMany({
     data: [
       {
-        userId: 1,
+        userId: createdUsers[0].id,
         bio: "you miss all the shots you don't take",
         profileIMG: "greatpicalice.jpeg",
       },
       {
-        userId: 2,
+        userId: createdUsers[1].id,
         bio: "let's go",
         profileIMG: "greatpicalex.jpeg",
       },
     ],
   });
 
-  const createdPost = await prisma.post.createMany({
+  const createdPostConfirmation = await prisma.post.createMany({
     data: [
       {
-        userId: 1,
+        userId: createdUsers[0].id,
         title: "wonderful title",
         content: "amazing post by Alice",
         published: true,
       },
       {
-        userId: 2,
+        userId: createdUsers[1].id,
         title: "wonderful title",
         content: "amazing post by Alex",
         picture: "amazingphoto.jpeg",
@@ -52,24 +54,27 @@ async function seed() {
     ],
   });
 
+  const createdPosts = await prisma.post.findMany();
+
   const createdComment = await prisma.comment.createMany({
     data: [
       {
-        userId: 1,
-        postId: 1,
+        userId: createdUsers[0].id,
+        postId: createdPosts[0].id,
         content: "amazing comment by Alice",
       },
       {
-        userId: 2,
-        postId: 2,
+        userId: createdUsers[1].id,
+        postId: createdPosts[1].id,
         content: "amazing comment by Alex",
       },
     ],
   });
 
   console.log(`${createdUsers.count} users created`, createdUsers);
+  console.log(`user 1`, createdUsers[0]);
   console.log("Profile created", createdProfile);
-  console.log("Post created", createdPost);
+  console.log("Post created", createdPosts);
   console.log("Comment created", createdComment);
 
   process.exit(0);
